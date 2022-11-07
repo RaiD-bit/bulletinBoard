@@ -1,0 +1,41 @@
+version: '3' 
+
+services:
+  db:
+    container_name: bulletindb
+    image: postgres
+    hostname: db
+    environment:
+      GET_HOSTNAME_FROM: dns
+      POSTGRES_DB: dev
+      POSTGRES_USER: deva
+      POSTGRES_PASSWORD: devaSecretPwd
+    ports:
+      - 5432:5432
+    networks:
+      - bulletinnet
+
+  bulletinapi:
+    container_name: bulletinapi 
+    image: raidbit/bulletinapi:v1
+    hostname: bulletinapi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      GET_HOSTNAME_FROM: dns
+    networks:
+      - bulletinnet
+    volumes:
+      - .:/go/src/bulletinBoard
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    labels: 
+      - kompose.service
+
+networks:
+  bulletinnet:
+    driver: bridge
+
